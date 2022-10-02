@@ -59,10 +59,23 @@ mod tests {
         vec.push(fft::Complex{real: 3.0, imag: 0.0,});
         vec.push(fft::Complex{real: 4.0, imag: 0.0,});
         vec.push(fft::Complex{real: 5.0, imag: 0.0,});
+
+        let root = fft::Complex{real: 0.0, imag: 1.0};
         
 
-        let A = fft::fft(&vec);
+        let A = fft::fft(&vec, root);
         println!("{:?}", A);
+    }
+    #[test]
+    fn mult_polynomial_test() {
+        use crate::fft;
+
+        let p1 = vec![1.0,2.0,3.0,4.0];
+        let p2 = vec![5.0,6.0];
+
+        let pm = fft::mult_polynomial(&p1, &p2);
+
+        println!("{:?}", pm);
     }
 
 }

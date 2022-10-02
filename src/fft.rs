@@ -70,7 +70,18 @@ impl ops::Mul for Complex {
     }
 }
 
-fn fft_helper(v: &[Complex], root: Complex) -> Vec<Complex> {
+impl ops::Div<f64> for Complex {
+    type Output = Self;
+
+    fn div(self, other: f64) -> Self {
+        Complex { 
+            real: self.real / other, 
+            imag: self.imag / other,
+        }
+    }
+}
+
+pub fn fft(v: &[Complex], root: Complex) -> Vec<Complex> {
 
     //println!("{:?} {}", v, root);
 
@@ -91,8 +102,8 @@ fn fft_helper(v: &[Complex], root: Complex) -> Vec<Complex> {
 
     //println!("V_e, V_o {:?} {:?}", v_e, v_o);
 
-    let a_e = fft_helper(&v_e, root * root);
-    let a_o = fft_helper(&v_o, root * root);
+    let a_e = fft(&v_e, root * root);
+    let a_o = fft(&v_o, root * root);
 
     //println!("A_e, A_o: {:?} {:?}", a_e, a_o);
 
@@ -109,27 +120,62 @@ fn fft_helper(v: &[Complex], root: Complex) -> Vec<Complex> {
     
     a
 }
+pub fn mult_polynomial(p1: &Vec<f64>, p2: &Vec<f64>) -> Vec<f64> {
+    let mut p1_complex = Vec::new();
+    let mut p2_complex = Vec::new();
 
-pub fn fft(v: &Vec<Complex>) -> Vec<Complex> {
-    let mut v_padded  = v.clone();
+    let new_size = 2 * std::cmp::max(p1.len(), p2.len()) + 1;
+    let mut highest_power: usize = 1;
 
-    let mut highest_power = 1;
-
-    while highest_power < v.len() {
+    while highest_power < new_size {
         highest_power *= 2;
     }
 
-    for _i in v.len()..highest_power {
-        v_padded.push(Complex {real: 0.0, imag: 0.0,});
+    for i in p1{
+        p1_complex.push(Complex{real: *i, imag: 0.0});
+    }
+    for i in p2{
+        p2_complex.push(Complex{real: *i, imag: 0.0});
+    }
+
+    for _i in p1_complex.len()..highest_power {
+        p1_complex.push(Complex{real: 0.0, imag: 0.0});
+    }
+    for _i in p2_complex.len()..highest_power {
+        p2_complex.push(Complex{real: 0.0, imag: 0.0});
     }
 
     let root = Complex {
         real: (-2.0 * std::f64::consts::PI / (highest_power as f64)).cos(),
         imag: (-2.0 * std::f64::consts::PI / (highest_power as f64)).sin()
     };
+    let root_inv = Complex {
+        real: (2.0 * std::f64::consts::PI / (highest_power as f64)).cos(),
+        imag: (2.0 * std::f64::consts::PI / (highest_power as f64)).sin()
+    };
 
-    let a = fft_helper(v_padded.as_slice(), root);
+    let v1 = fft(&p1_complex, root);
+    let v2 = fft(&p2_complex, root);
 
-    a
+    let mut vm = Vec::new();
+
+    for i in 0..highest_power {
+        vm.push(v1[i] * v2[i]);
+    }
+
+    let mut ans_complex = fft(&vm, root_inv);
+    
+    for i in 0..highest_power {
+        ans_complex[i] = ans_complex[i] / highest_power as f64;
+    }
+
+    let mut ans = Vec::new();
+
+    for i in ans_complex {
+        ans.push(i.real);
+    }
+
+    ans
+
+
 }
-
