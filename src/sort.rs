@@ -1,5 +1,3 @@
-use std::fmt::Debug;
-
 pub fn merge_sort<T: Ord + Copy>(v: &mut Vec<T>) {
     let sorted = merge_sort_helper(v.as_slice());
     for i in 0..v.len(){
@@ -7,7 +5,7 @@ pub fn merge_sort<T: Ord + Copy>(v: &mut Vec<T>) {
     }
 }
 
-pub fn quick_sort<T: Ord + Copy + Debug>(v: &mut Vec<T>) {
+pub fn quick_sort<T: Ord>(v: &mut Vec<T>) {
     let len = v.len();
     quick_sort_helper(v.as_mut_slice(), 0, len - 1);
 }
@@ -51,47 +49,40 @@ fn merge_sort_helper<T: Ord + Copy>(v: &[T]) -> Vec<T>{
     ret
 }
 
-fn quick_sort_helper<T: Ord + Copy + Debug>(v: &mut [T], low: usize, high: usize){
+fn quick_sort_helper<T: Ord>(v: &mut [T], low: usize, high: usize){
     
     if low < high {
 
-        println!("{:?}",&v[low..=high]);
-
         let pivot = quick_sort_pivot(v, low, high);
-        println!("{}", pivot);
 
         quick_sort_helper(v, low, pivot);
         quick_sort_helper(v, pivot+1, high);
-
-        println!("{:?}",&v[low..=high]);
     }
         
 }
 
-fn quick_sort_pivot<T: Ord + Copy>(v: &mut [T], low: usize, high: usize) -> usize {
+fn quick_sort_pivot<T: Ord>(v: &mut [T], low: usize, high: usize) -> usize {
 
-    let pivot = v[(high + low) / 2];
-    let p_ref = &pivot;
+    let mut piv_ind = (high + low) / 2;
 
     let mut i = low;
     let mut j = high;
 
     loop {
-        while &v[i] < p_ref {
+        while &v[i] < &v[piv_ind] {
             i += 1;
         }
 
-        while &v[j] > p_ref {
+        while &v[j] > &v[piv_ind] {
             j -= 1;
         }
 
         if i >= j {
             break;
         }
-
-        let tmp = v[i];
-        v[i] = v[j];
-        v[j] = tmp;
+        if piv_ind == i { piv_ind = j}
+        else if piv_ind == j {piv_ind = i}
+        v.swap(i, j);
 
         i += 1;
         j -= 1;

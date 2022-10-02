@@ -1,4 +1,5 @@
 pub mod sort;
+pub mod fft;
 
 #[cfg(test)]
 mod tests {
@@ -15,7 +16,7 @@ mod tests {
         use crate::sort;
 
         let mut rng = rand::thread_rng();
-        let mut vec: Vec<i32> = vec![0; 500];
+        let mut vec: Vec<i32> = vec![0; 10000];
 
         for i in &mut vec {
             *i = rng.gen::<i32>();
@@ -34,7 +35,7 @@ mod tests {
         use crate::sort;
 
         let mut rng = rand::thread_rng();
-        let mut vec: Vec<i32> = vec![0; 10];
+        let mut vec: Vec<i32> = vec![0; 10000];
 
         for i in &mut vec {
             *i = rng.gen::<i32>();
@@ -46,4 +47,22 @@ mod tests {
             assert!(&vec[i] <= &vec[i+1]);
         }
     }
+
+    #[test]
+    fn fft_test() {
+
+        use crate::fft;
+
+        let mut vec: Vec<fft::Complex> = Vec::new();
+        vec.push(fft::Complex{real: 1.0, imag: 0.0,});
+        vec.push(fft::Complex{real: 2.0, imag: 0.0,});
+        vec.push(fft::Complex{real: 3.0, imag: 0.0,});
+        vec.push(fft::Complex{real: 4.0, imag: 0.0,});
+        vec.push(fft::Complex{real: 5.0, imag: 0.0,});
+        
+
+        let A = fft::fft(&vec);
+        println!("{:?}", A);
+    }
+
 }
