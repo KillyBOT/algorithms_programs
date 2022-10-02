@@ -124,7 +124,7 @@ pub fn mult_polynomial(p1: &Vec<f64>, p2: &Vec<f64>) -> Vec<f64> {
     let mut p1_complex = Vec::new();
     let mut p2_complex = Vec::new();
 
-    let new_size = 2 * std::cmp::max(p1.len(), p2.len()) + 1;
+    let new_size = 2 * std::cmp::max(p1.len()-1, p2.len()-1) + 1;
     let mut highest_power: usize = 1;
 
     while highest_power < new_size {
