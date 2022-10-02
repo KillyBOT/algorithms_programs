@@ -8,6 +8,11 @@ pub struct Complex {
 }
 
 impl Complex {
+
+    pub fn new() -> Self {
+        Complex{ real: 0.0, imag: 0.0,}
+    }
+
     pub fn mag(&self) -> f64 {
         (self.real * self.real + self.imag * self.imag).sqrt()
     }
@@ -107,7 +112,7 @@ pub fn fft(v: &[Complex], root: Complex) -> Vec<Complex> {
 
     //println!("A_e, A_o: {:?} {:?}", a_e, a_o);
 
-    let mut a: Vec<Complex> = vec![Complex{real: 0.0, imag: 0.0,}; v.len()];
+    let mut a: Vec<Complex> = vec![Complex::new(); v.len()];
 
     let half = v.len() / 2;
 
@@ -124,6 +129,7 @@ pub fn mult_polynomial(p1: &Vec<f64>, p2: &Vec<f64>) -> Vec<f64> {
     let mut p1_complex = Vec::new();
     let mut p2_complex = Vec::new();
 
+    //Find the highest power of 2 that can fit the coefficients of the multiplied polynomial
     let new_size = 2 * std::cmp::max(p1.len()-1, p2.len()-1) + 1;
     let mut highest_power: usize = 1;
 
@@ -131,6 +137,7 @@ pub fn mult_polynomial(p1: &Vec<f64>, p2: &Vec<f64>) -> Vec<f64> {
         highest_power *= 2;
     }
 
+    //Convert floats into complex form for FFT
     for i in p1{
         p1_complex.push(Complex{real: *i, imag: 0.0});
     }
@@ -145,6 +152,7 @@ pub fn mult_polynomial(p1: &Vec<f64>, p2: &Vec<f64>) -> Vec<f64> {
         p2_complex.push(Complex{real: 0.0, imag: 0.0});
     }
 
+    //Calculate the root of unity to use
     let root = Complex {
         real: (-2.0 * std::f64::consts::PI / (highest_power as f64)).cos(),
         imag: (-2.0 * std::f64::consts::PI / (highest_power as f64)).sin()
@@ -154,23 +162,24 @@ pub fn mult_polynomial(p1: &Vec<f64>, p2: &Vec<f64>) -> Vec<f64> {
         imag: (2.0 * std::f64::consts::PI / (highest_power as f64)).sin()
     };
 
+    //Use FFT to put into value form
     let v1 = fft(&p1_complex, root);
     let v2 = fft(&p2_complex, root);
 
+    //Find hadamard product of the two value form vectors
     let mut vm = Vec::new();
-
     for i in 0..highest_power {
         vm.push(v1[i] * v2[i]);
     }
 
+    //Do reverse FFT to put product back into coefficient form
     let mut ans_complex = fft(&vm, root_inv);
-    
     for i in 0..highest_power {
         ans_complex[i] = ans_complex[i] / highest_power as f64;
     }
 
+    //Convert back to float
     let mut ans = Vec::new();
-
     for i in ans_complex {
         ans.push(i.real);
     }
